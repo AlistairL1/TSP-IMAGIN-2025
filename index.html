@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Citoyen - Votre Ville</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Bienvenue sur le Portail Citoyen</h1>
+        <nav>
+            <ul>
+                <li><a href="#accueil">Accueil</a></li>
+                <li><a href="#carte">Carte Interactive</a></li>
+                <li><a href="#donnees">Données</a></li>
+                <li><a href="#services">Services</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="accueil">
+            <h2>Découvrez votre ville</h2>
+            <p>Explorez les données et services disponibles pour les citoyens.</p>
+        </section>
+
+        <section id="carte">
+            <h2>Carte Interactive</h2>
+            <div id="map"></div>
+        </section>
+
+        <section id="donnees">
+            <h2>Données de la ville</h2>
+            <div class="data-grid">
+                <div class="data-card">
+                    <h3>Démographie</h3>
+                    <div id="demographic-data"></div>
+                </div>
+                <div class="data-card">
+                    <h3>Services Publics</h3>
+                    <div id="public-services"></div>
+                </div>
+                <div class="data-card">
+                    <h3>Environnement</h3>
+                    <div id="environmental-data"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Portail Citoyen. Tous droits réservés.</p>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
