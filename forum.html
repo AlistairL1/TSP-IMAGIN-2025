@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forum Citoyen - Portail Citoyen</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="img/logo.png" type="image/svg">
+    <link href="img/logo.png" rel="icon" sizes="16x16" type="img/logo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/logo.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="img/logo.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="img/logo.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/logo.png">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="https://alistairl1.github.io/TSP-IMAGIN-2025/">
+                <img src="img/logo.png" alt="Logo de la ville" class="logo" style="height: 55px; vertical-align: left;">
+            </a>
+            <div class="header-text">
+                <h1>Forum Citoyen</h1>
+                <nav>
+                    <ul>
+                        <li><a href="index.html#accueil">Accueil</a></li>
+                        <li><a href="index.html#carte">Carte Interactive</a></li>
+                        <li><a href="index.html#donnees">Données</a></li>
+                        <li><a href="index.html#services">Services</a></li>
+                        <li><a href="plainte.html">Dépôt de Plainte</a></li>
+                        <li><a href="forum.html" class="active">Forum</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="forum">
+            <div class="forum-header">
+                <h2>Forum de Discussion</h2>
+                <button id="newTopicBtn" class="submit-btn">Nouveau Sujet</button>
+            </div>
+
+            <div id="newTopicForm" class="forum-form" style="display: none;">
+                <h3>Créer un nouveau sujet</h3>
+                <form id="topicForm">
+                    <div class="form-group">
+                        <label for="topicTitle">Titre *</label>
+                        <input type="text" id="topicTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="topicCategory">Catégorie *</label>
+                        <select id="topicCategory" required>
+                            <option value="">Sélectionner une catégorie</option>
+                            <option value="vie-locale">Vie Locale</option>
+                            <option value="evenements">Événements</option>
+                            <option value="projets">Projets Urbains</option>
+                            <option value="environnement">Environnement</option>
+                            <option value="autres">Autres</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="topicContent">Message *</label>
+                        <textarea id="topicContent" rows="5" required></textarea>
+                    </div>
+                    <div class="form-submit">
+                        <button type="submit" class="submit-btn">Publier</button>
+                        <button type="button" class="cancel-btn" id="cancelTopic">Annuler</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="forum-categories">
+                <div class="category-section">
+                    <h3>Vie Locale</h3>
+                    <div class="topic-list" id="vie-locale-topics">
+                        <!-- Les sujets seront ajoutés dynamiquement ici -->
+                    </div>
+                </div>
+
+                <div class="category-section">
+                    <h3>Événements</h3>
+                    <div class="topic-list" id="evenements-topics">
+                        <!-- Les sujets seront ajoutés dynamiquement ici -->
+                    </div>
+                </div>
+
+                <div class="category-section">
+                    <h3>Projets Urbains</h3>
+                    <div class="topic-list" id="projets-topics">
+                        <!-- Les sujets seront ajoutés dynamiquement ici -->
+                    </div>
+                </div>
+
+                <div class="category-section">
+                    <h3>Environnement</h3>
+                    <div class="topic-list" id="environnement-topics">
+                        <!-- Les sujets seront ajoutés dynamiquement ici -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Portail Citoyen. Tous droits réservés.</p>
+    </footer>
+
+    <script src="forum.js"></script>
+</body>
+</html> 
