@@ -11,10 +11,25 @@ function initMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Style par défaut pour les quartiers
-    function getDefaultStyle(feature) {
+    // Palette de couleurs pour les différentes zones
+    const zoneColors = {
+        1: '#FF5733',  // Orange-rouge
+        2: '#33FF57',  // Vert clair
+        3: '#3357FF',  // Bleu
+        4: '#FF33F6',  // Rose
+        5: '#33FFF6',  // Cyan
+        6: '#F6FF33',  // Jaune
+        7: '#9933FF',  // Violet
+        8: '#FF8333',  // Orange
+        9: '#33FF83',  // Vert menthe
+        10: '#8333FF', // Violet foncé
+        11: '#FF3333'  // Rouge
+    };
+
+    // Style par défaut pour les zones
+    function getDefaultStyle(zoneNumber) {
         return {
-            fillColor: '#ff7f00', // Couleur fixe pour le moment
+            fillColor: zoneColors[zoneNumber],
             weight: 2,
             opacity: 1,
             color: 'white',
@@ -24,53 +39,42 @@ function initMap() {
     }
 
     // Style au survol
-    function getHighlightStyle(feature) {
+    function getHighlightStyle(zoneNumber) {
         return {
             weight: 3,
             color: '#666',
             dashArray: '',
             fillOpacity: 0.8,
-            transform: 'scale(1.01)',
-            transition: 'all 0.3s'
+            fillColor: zoneColors[zoneNumber]
         };
-    }
-
-    // Fonction pour obtenir une couleur en fonction du nom du quartier
-    function getColorForNeighborhood(name) {
-        const colors = {
-            'Quartier1': '#ff7f00',
-            'Quartier2': '#377eb8',
-            'Quartier3': '#4daf4a',
-            'Quartier4': '#984ea3',
-            // Ajoutez d'autres quartiers et couleurs selon vos besoins
-        };
-        return colors[name] || '#ff7f00'; // Couleur par défaut si le quartier n'est pas listé
     }
 
     // Gestion des événements pour chaque feature
     function onEachFeature(feature, layer) {
-        // Ajout de propriétés par défaut si elles n'existent pas
+        const zoneNumber = feature.properties.zone || 1;
+        
+        // Propriétés par défaut si non définies
         const properties = {
-            name: 'Quartier Test',
-            population: '5000',
-            area: '2.5',
-            density: '2000',
-            greenSpaces: '10 hectares',
-            schools: '2',
+            name: `Zone ${zoneNumber}`,
+            population: feature.properties.population || 'Non disponible',
+            area: feature.properties.area || 'Non disponible',
+            density: feature.properties.density || 'Non disponible',
+            greenSpaces: feature.properties.greenSpaces || 'Non disponible',
+            schools: feature.properties.schools || 'Non disponible',
             ...feature.properties
         };
 
         layer.on({
             mouseover: function(e) {
                 const layer = e.target;
-                layer.setStyle(getHighlightStyle());
+                layer.setStyle(getHighlightStyle(zoneNumber));
                 layer.bringToFront();
-                showNeighborhoodInfo(properties);
+                showZoneInfo(properties);
             },
             mouseout: function(e) {
                 const layer = e.target;
-                layer.setStyle(getDefaultStyle());
-                hideNeighborhoodInfo();
+                layer.setStyle(getDefaultStyle(zoneNumber));
+                hideZoneInfo();
             },
             click: function(e) {
                 showDetailedInfo(properties);
@@ -78,16 +82,16 @@ function initMap() {
         });
     }
 
-    // Afficher les informations du quartier dans une infobulle
-    function showNeighborhoodInfo(properties) {
+    // Afficher les informations de la zone dans une infobulle
+    function showZoneInfo(properties) {
         const info = document.createElement('div');
         info.id = 'neighborhood-info';
         info.innerHTML = `
             <h3>${properties.name}</h3>
-            <p>Surface: ${properties.area} km²</p>
+            <p>Population: ${properties.population}</p>
+            <p>Surface: ${properties.area}</p>
         `;
         
-        // Positionner l'infobulle près du curseur
         map.getContainer().addEventListener('mousemove', function(e) {
             const rect = map.getContainer().getBoundingClientRect();
             info.style.left = (e.clientX - rect.left + 10) + 'px';
@@ -98,22 +102,21 @@ function initMap() {
     }
 
     // Cacher l'infobulle
-    function hideNeighborhoodInfo() {
+    function hideZoneInfo() {
         const info = document.getElementById('neighborhood-info');
         if (info) {
             info.remove();
         }
     }
 
-    // Afficher les informations détaillées dans un panneau
+    // Afficher les informations détaillées dans le panneau
     function showDetailedInfo(properties) {
-        // Exemple d'affichage des données détaillées
         const detailsHtml = `
             <h3>${properties.name}</h3>
             <ul>
                 <li>Population: ${properties.population}</li>
-                <li>Surface: ${properties.area} km²</li>
-                <li>Densité: ${properties.density} hab/km²</li>
+                <li>Surface: ${properties.area}</li>
+                <li>Densité: ${properties.density}</li>
                 <li>Espaces verts: ${properties.greenSpaces}</li>
                 <li>Écoles: ${properties.schools}</li>
             </ul>
@@ -121,20 +124,34 @@ function initMap() {
         document.getElementById('neighborhood-details').innerHTML = detailsHtml;
     }
 
-    // Chargement du GeoJSON
-    fetch('map.geojson')
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, {
-                style: getDefaultStyle,
-                onEachFeature: onEachFeature
-            }).addTo(map);
-            
-            // Ajuster la vue de la carte pour montrer tout le GeoJSON
-            const bounds = L.geoJSON(data).getBounds();
-            map.fitBounds(bounds);
-        })
-        .catch(error => console.error('Erreur de chargement du GeoJSON:', error));
+    // Charger tous les fichiers GeoJSON
+    const zonePromises = [];
+    for (let i = 1; i <= 11; i++) {
+        const promise = fetch(`zone${i}.geojson`)
+            .then(response => response.json())
+            .then(data => {
+                // Ajouter le numéro de zone aux propriétés si non présent
+                if (data.features && data.features.length > 0) {
+                    data.features.forEach(feature => {
+                        feature.properties = feature.properties || {};
+                        feature.properties.zone = i;
+                    });
+                }
+                return L.geoJSON(data, {
+                    style: () => getDefaultStyle(i),
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+            })
+            .catch(error => console.error(`Erreur de chargement de zone${i}.geojson:`, error));
+        
+        zonePromises.push(promise);
+    }
+
+    // Ajuster la vue de la carte une fois que toutes les zones sont chargées
+    Promise.all(zonePromises).then(layers => {
+        const bounds = L.featureGroup(layers.filter(layer => layer)).getBounds();
+        map.fitBounds(bounds);
+    });
 }
 
 // Fonction pour charger les données démographiques
