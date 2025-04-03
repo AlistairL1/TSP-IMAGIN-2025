@@ -203,6 +203,24 @@ function initMap() {
                     onEachFeature: onEachFeature
                 }).addTo(map);
 
+                // Ajouter le label de la zone avec le nom du quartier
+                data.features.forEach(feature => {
+                    if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+                        const center = layer.getBounds().getCenter();
+                        const zoneName = quartierNames[i];
+                        const label = L.marker(center, {
+                            icon: L.divIcon({
+                                className: 'zone-label',
+                                html: zoneName,
+                                iconSize: [120, 40],
+                                iconAnchor: [60, 20]
+                            }),
+                            pane: 'markerPane', // S'assure que le label reste au-dessus du polygone
+                            interactive: false   // Empêche le label d'intercepter les événements de la souris
+                        }).addTo(map);
+                    }
+                });
+
                 return layer;
             })
             .catch(error => console.error(`Erreur de chargement de ${i}.geojson:`, error));
