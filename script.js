@@ -88,12 +88,13 @@ function initMap() {
         `;
         
         // Positionner l'infobulle près du curseur
-        document.addEventListener('mousemove', function(e) {
-            info.style.left = (e.pageX + window.scrollX) + 'px';
-            info.style.top = (e.pageY + window.scrollY) + 'px';
+        map.getContainer().addEventListener('mousemove', function(e) {
+            const rect = map.getContainer().getBoundingClientRect();
+            info.style.left = (e.clientX - rect.left + 10) + 'px';
+            info.style.top = (e.clientY - rect.top + 10) + 'px';
         });
         
-        document.body.appendChild(info);
+        map.getContainer().appendChild(info);
     }
 
     // Cacher l'infobulle

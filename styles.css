@@ -118,7 +118,7 @@ footer {
 
 /* Styles pour l'infobulle des quartiers */
 #neighborhood-info {
-    position: fixed;
+    position: absolute;
     background: white;
     padding: 10px;
     border-radius: 4px;
