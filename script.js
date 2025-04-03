@@ -49,13 +49,28 @@ function initMap() {
         };
     }
 
+    // Noms des quartiers
+    const quartierNames = {
+        1: 'Bas-Coudray Pressoir-Prompt',
+        2: 'Centre-ville',
+        3: 'Centre Essonnes',
+        4: 'Coquibus',
+        5: 'Ermitage',
+        6: 'Montconseil',
+        7: 'Moulin-Galant',
+        8: 'Nacelle Papeterie',
+        9: 'Robinson',
+        10: 'Rive Droite',
+        11: 'Tarterêts'
+    };
+
     // Gestion des événements pour chaque feature
     function onEachFeature(feature, layer) {
         const zoneNumber = feature.properties.zone || 1;
         
         // Propriétés par défaut si non définies
         const properties = {
-            name: `Zone ${zoneNumber}`,
+            name: quartierNames[zoneNumber] || `Zone ${zoneNumber}`,
             population: feature.properties.population || 'Non disponible',
             area: feature.properties.area || 'Non disponible',
             density: feature.properties.density || 'Non disponible',
@@ -124,23 +139,60 @@ function initMap() {
         document.getElementById('neighborhood-details').innerHTML = detailsHtml;
     }
 
+    // Création du bouton de réinitialisation
+    const resetButton = L.control({position: 'bottomright'});
+    
+    resetButton.onAdd = function (map) {
+        const btn = L.DomUtil.create('button', 'reset-view-btn');
+        btn.innerHTML = 'Réinitialiser la vue';
+        
+        btn.onclick = function() {
+            map.fitBounds(initialBounds);
+        };
+        
+        return btn;
+    };
+    
+    resetButton.addTo(map);
+
+    // Variable pour stocker les limites initiales de la carte
+    let initialBounds;
+
     // Charger tous les fichiers GeoJSON
     const zonePromises = [];
     for (let i = 1; i <= 11; i++) {
         const promise = fetch(`${i}.geojson`)
             .then(response => response.json())
             .then(data => {
-                // Ajouter le numéro de zone aux propriétés si non présent
                 if (data.features && data.features.length > 0) {
                     data.features.forEach(feature => {
                         feature.properties = feature.properties || {};
                         feature.properties.zone = i;
+                        feature.properties.name = quartierNames[i];
                     });
                 }
-                return L.geoJSON(data, {
+                const layer = L.geoJSON(data, {
                     style: () => getDefaultStyle(i),
                     onEachFeature: onEachFeature
                 }).addTo(map);
+
+                // Ajouter le label de la zone avec le nom du quartier
+                data.features.forEach(feature => {
+                    if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+                        const center = layer.getBounds().getCenter();
+                        const zoneName = quartierNames[i];
+                        L.marker(center, {
+                            icon: L.divIcon({
+                                className: 'zone-label',
+                                html: zoneName,
+                                iconSize: [120, 40], // Augmenté pour accommoder les noms plus longs
+                                iconAnchor: [60, 20]
+                            })
+                        }).addTo(map);
+                    }
+                });
+
+                return layer;
             })
             .catch(error => console.error(`Erreur de chargement de ${i}.geojson:`, error));
         
@@ -150,6 +202,7 @@ function initMap() {
     // Ajuster la vue de la carte une fois que toutes les zones sont chargées
     Promise.all(zonePromises).then(layers => {
         const bounds = L.featureGroup(layers.filter(layer => layer)).getBounds();
+        initialBounds = bounds; // Sauvegarder les limites initiales
         map.fitBounds(bounds);
     });
 }
