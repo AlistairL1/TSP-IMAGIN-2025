@@ -127,7 +127,7 @@ function initMap() {
     // Charger tous les fichiers GeoJSON
     const zonePromises = [];
     for (let i = 1; i <= 11; i++) {
-        const promise = fetch(`zone${i}.geojson`)
+        const promise = fetch(`${i}.geojson`)
             .then(response => response.json())
             .then(data => {
                 // Ajouter le numéro de zone aux propriétés si non présent
@@ -142,7 +142,7 @@ function initMap() {
                     onEachFeature: onEachFeature
                 }).addTo(map);
             })
-            .catch(error => console.error(`Erreur de chargement de zone${i}.geojson:`, error));
+            .catch(error => console.error(`Erreur de chargement de ${i}.geojson:`, error));
         
         zonePromises.push(promise);
     }
