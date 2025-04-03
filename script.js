@@ -64,6 +64,16 @@ function initMap() {
         11: 'Tarterêts'
     };
 
+    // Style pour les labels des zones
+    function createLabelIcon(zoneName) {
+        return L.divIcon({
+            className: 'zone-label',
+            html: zoneName,
+            iconSize: [120, 40],
+            iconAnchor: [60, 20]
+        });
+    }
+
     // Gestion des événements pour chaque feature
     function onEachFeature(feature, layer) {
         const zoneNumber = feature.properties.zone || 1;
@@ -79,15 +89,16 @@ function initMap() {
             ...feature.properties
         };
 
+        // Créer un groupe de couches pour la zone et son label
+        const layerGroup = L.featureGroup();
+
         layer.on({
             mouseover: function(e) {
-                const layer = e.target;
                 layer.setStyle(getHighlightStyle(zoneNumber));
                 layer.bringToFront();
                 showZoneInfo(properties);
             },
             mouseout: function(e) {
-                const layer = e.target;
                 layer.setStyle(getDefaultStyle(zoneNumber));
                 hideZoneInfo();
             },
@@ -95,6 +106,22 @@ function initMap() {
                 showDetailedInfo(properties);
             }
         });
+
+        // Ajouter la zone au groupe
+        layerGroup.addLayer(layer);
+
+        // Ajouter le label au centre de la zone
+        if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
+            const bounds = layer.getBounds();
+            const center = bounds.getCenter();
+            const label = L.marker(center, {
+                icon: createLabelIcon(properties.name),
+                interactive: false // Le label ne bloque pas les événements de la zone
+            });
+            layerGroup.addLayer(label);
+        }
+
+        return layerGroup;
     }
 
     // Afficher les informations de la zone dans une infobulle
@@ -175,22 +202,6 @@ function initMap() {
                     style: () => getDefaultStyle(i),
                     onEachFeature: onEachFeature
                 }).addTo(map);
-
-                // Ajouter le label de la zone avec le nom du quartier
-                data.features.forEach(feature => {
-                    if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
-                        const center = layer.getBounds().getCenter();
-                        const zoneName = quartierNames[i];
-                        L.marker(center, {
-                            icon: L.divIcon({
-                                className: 'zone-label',
-                                html: zoneName,
-                                iconSize: [120, 40], // Augmenté pour accommoder les noms plus longs
-                                iconAnchor: [60, 20]
-                            })
-                        }).addTo(map);
-                    }
-                });
 
                 return layer;
             })
