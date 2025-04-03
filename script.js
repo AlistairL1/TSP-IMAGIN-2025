@@ -14,7 +14,7 @@ function initMap() {
     // Style par défaut pour les quartiers
     function getDefaultStyle(feature) {
         return {
-            fillColor: getColorForNeighborhood(feature.properties.name),
+            fillColor: '#ff7f00', // Couleur fixe pour le moment
             weight: 2,
             opacity: 1,
             color: 'white',
@@ -30,7 +30,7 @@ function initMap() {
             color: '#666',
             dashArray: '',
             fillOpacity: 0.8,
-            transform: 'scale(1.01)', // Effet de grossissement
+            transform: 'scale(1.01)',
             transition: 'all 0.3s'
         };
     }
@@ -49,20 +49,31 @@ function initMap() {
 
     // Gestion des événements pour chaque feature
     function onEachFeature(feature, layer) {
+        // Ajout des propriétés par défaut si elles n'existent pas
+        const properties = {
+            name: 'Quartier Test',
+            population: '5000',
+            area: '2.5',
+            density: '2000',
+            greenSpaces: '10 hectares',
+            schools: '2',
+            ...feature.properties
+        };
+
         layer.on({
             mouseover: function(e) {
                 const layer = e.target;
-                layer.setStyle(getHighlightStyle(feature));
+                layer.setStyle(getHighlightStyle());
                 layer.bringToFront();
-                showNeighborhoodInfo(feature.properties);
+                showNeighborhoodInfo(properties);
             },
             mouseout: function(e) {
                 const layer = e.target;
-                layer.setStyle(getDefaultStyle(feature));
+                layer.setStyle(getDefaultStyle());
                 hideNeighborhoodInfo();
             },
             click: function(e) {
-                showDetailedInfo(feature.properties);
+                showDetailedInfo(properties);
             }
         });
     }
@@ -73,9 +84,15 @@ function initMap() {
         info.id = 'neighborhood-info';
         info.innerHTML = `
             <h3>${properties.name}</h3>
-            <p>Population: ${properties.population}</p>
             <p>Surface: ${properties.area} km²</p>
         `;
+        
+        // Positionner l'infobulle près du curseur
+        document.addEventListener('mousemove', function(e) {
+            info.style.left = (e.pageX + 10) + 'px';
+            info.style.top = (e.pageY + 10) + 'px';
+        });
+        
         document.body.appendChild(info);
     }
 
@@ -103,7 +120,7 @@ function initMap() {
         document.getElementById('neighborhood-details').innerHTML = detailsHtml;
     }
 
-    // Exemple de chargement d'un fichier GeoJSON
+    // Chargement du GeoJSON
     fetch('map.geojson')
         .then(response => response.json())
         .then(data => {
@@ -111,6 +128,10 @@ function initMap() {
                 style: getDefaultStyle,
                 onEachFeature: onEachFeature
             }).addTo(map);
+            
+            // Ajuster la vue de la carte pour montrer tout le GeoJSON
+            const bounds = L.geoJSON(data).getBounds();
+            map.fitBounds(bounds);
         })
         .catch(error => console.error('Erreur de chargement du GeoJSON:', error));
 }
