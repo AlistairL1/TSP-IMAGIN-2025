@@ -87,18 +87,13 @@ function initMap() {
             <p>Surface: ${properties.area} km²</p>
         `;
         
-        // Fonction de mise à jour de la position
-        function updateInfoPosition(e) {
-            info.style.left = (e.pageX + 10) + 'px';
-            info.style.top = (e.pageY + 10) + 'px';
-        }
-        
-        // Ajouter l'event listener
-        document.addEventListener('mousemove', updateInfoPosition);
-        
-        // Supprimer l'event listener quand l'infobulle est supprimée
-        info.addEventListener('remove', () => {
-            document.removeEventListener('mousemove', updateInfoPosition);
+        // Positionner l'infobulle près du curseur
+        document.addEventListener('mousemove', function(e) {
+            const scrollX = window.scrollX || window.pageXOffset;
+            const scrollY = window.scrollY || window.pageYOffset;
+            
+            info.style.left = (e.clientX + scrollX + 10) + 'px';
+            info.style.top = (e.clientY + scrollY + 10) + 'px';
         });
         
         document.body.appendChild(info);
@@ -108,8 +103,6 @@ function initMap() {
     function hideNeighborhoodInfo() {
         const info = document.getElementById('neighborhood-info');
         if (info) {
-            // Déclencher l'événement remove avant de supprimer l'élément
-            info.dispatchEvent(new Event('remove'));
             info.remove();
         }
     }
