@@ -1,10 +1,7 @@
 // Initialisation de la carte
 function initMap() {
-    // Coordonnées du centre de Corbeil-Essonnes
-    const cityCenter = [48.614, 2.4837];
-
-    // Création de la carte
-    const map = L.map('map').setView(cityCenter, 13);
+    // Création de la carte centrée sur Corbeil-Essonnes
+    const map = L.map('map').setView([48.615, 2.485], 14);
 
     // Ajout de la couche OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -12,60 +9,34 @@ function initMap() {
     }).addTo(map);
 
     // Style par défaut pour les quartiers
-    function getDefaultStyle(feature) {
+    function getDefaultStyle() {
         return {
-            fillColor: '#ff7f00', // Couleur fixe pour le moment
+            fillColor: '#3388ff',
             weight: 2,
             opacity: 1,
-            color: 'white',
+            color: '#ffffff',
             dashArray: '3',
-            fillOpacity: 0.7
+            fillOpacity: 0.5
         };
     }
 
     // Style au survol
-    function getHighlightStyle(feature) {
+    function getHighlightStyle() {
         return {
-            weight: 3,
+            weight: 4,
             color: '#666',
             dashArray: '',
-            fillOpacity: 0.8,
-            transform: 'scale(1.01)',
-            transition: 'all 0.3s'
+            fillOpacity: 0.7
         };
-    }
-
-    // Fonction pour obtenir une couleur en fonction du nom du quartier
-    function getColorForNeighborhood(name) {
-        const colors = {
-            'Quartier1': '#ff7f00',
-            'Quartier2': '#377eb8',
-            'Quartier3': '#4daf4a',
-            'Quartier4': '#984ea3',
-            // Ajoutez d'autres quartiers et couleurs selon vos besoins
-        };
-        return colors[name] || '#ff7f00'; // Couleur par défaut si le quartier n'est pas listé
     }
 
     // Gestion des événements pour chaque feature
     function onEachFeature(feature, layer) {
-        // Ajout des propriétés par défaut si elles n'existent pas
-        const properties = {
-            name: 'Quartier Test',
-            population: '5000',
-            area: '2.5',
-            density: '2000',
-            greenSpaces: '10 hectares',
-            schools: '2',
-            ...feature.properties
-        };
-
         layer.on({
             mouseover: function(e) {
                 const layer = e.target;
                 layer.setStyle(getHighlightStyle());
-                layer.bringToFront();
-                showNeighborhoodInfo(properties);
+                showNeighborhoodInfo(feature.properties);
             },
             mouseout: function(e) {
                 const layer = e.target;
@@ -73,7 +44,7 @@ function initMap() {
                 hideNeighborhoodInfo();
             },
             click: function(e) {
-                showDetailedInfo(properties);
+                showDetailedInfo(feature.properties);
             }
         });
     }
@@ -84,15 +55,16 @@ function initMap() {
         info.id = 'neighborhood-info';
         info.innerHTML = `
             <h3>${properties.name}</h3>
+            <p>Population: ${properties.population}</p>
             <p>Surface: ${properties.area} km²</p>
         `;
-        
-        // Positionner l'infobulle près du curseur
-        document.addEventListener('mousemove', function(e) {
+
+        const updateInfoPosition = function(e) {
             info.style.left = (e.pageX + 10) + 'px';
             info.style.top = (e.pageY + 10) + 'px';
-        });
-        
+        };
+
+        document.addEventListener('mousemove', updateInfoPosition);
         document.body.appendChild(info);
     }
 
@@ -104,9 +76,8 @@ function initMap() {
         }
     }
 
-    // Afficher les informations détaillées dans un panneau
+    // Afficher les informations détaillées
     function showDetailedInfo(properties) {
-        // Exemple d'affichage des données détaillées
         const detailsHtml = `
             <h3>${properties.name}</h3>
             <ul>
@@ -124,16 +95,18 @@ function initMap() {
     fetch('map.geojson')
         .then(response => response.json())
         .then(data => {
-            L.geoJSON(data, {
+            const geoJsonLayer = L.geoJSON(data, {
                 style: getDefaultStyle,
                 onEachFeature: onEachFeature
             }).addTo(map);
             
-            // Ajuster la vue de la carte pour montrer tout le GeoJSON
-            const bounds = L.geoJSON(data).getBounds();
-            map.fitBounds(bounds);
+            // Ajuster la vue de la carte pour montrer le GeoJSON
+            map.fitBounds(geoJsonLayer.getBounds());
         })
-        .catch(error => console.error('Erreur de chargement du GeoJSON:', error));
+        .catch(error => {
+            console.error('Erreur de chargement du GeoJSON:', error);
+            document.getElementById('map').innerHTML = 'Erreur de chargement de la carte';
+        });
 }
 
 // Fonction pour charger les données démographiques
