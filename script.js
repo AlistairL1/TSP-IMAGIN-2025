@@ -1,141 +1,139 @@
 // Initialisation de la carte
 function initMap() {
-    try {
-        // Création de la carte centrée sur Corbeil-Essonnes
-        const map = L.map('map').setView([48.615, 2.485], 14);
+    // Coordonnées du centre de Corbeil-Essonnes
+    const cityCenter = [48.614, 2.4837];
 
-        // Ajout de la couche OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
+    // Création de la carte
+    const map = L.map('map').setView(cityCenter, 13);
 
-        // Style par défaut pour les quartiers
-        function getDefaultStyle() {
-            return {
-                fillColor: '#3388ff',
-                weight: 2,
-                opacity: 1,
-                color: '#ffffff',
-                dashArray: '3',
-                fillOpacity: 0.5
-            };
-        }
+    // Ajout de la couche OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Style au survol
-        function getHighlightStyle() {
-            return {
-                weight: 4,
-                color: '#666',
-                dashArray: '',
-                fillOpacity: 0.7
-            };
-        }
-
-        // Gestion des événements pour chaque feature
-        function onEachFeature(feature, layer) {
-            if (!feature.properties) {
-                console.warn('Feature sans propriétés détectée');
-                return;
-            }
-
-            layer.on({
-                mouseover: function(e) {
-                    const layer = e.target;
-                    layer.setStyle(getHighlightStyle());
-                    showNeighborhoodInfo(feature.properties);
-                },
-                mouseout: function(e) {
-                    const layer = e.target;
-                    layer.setStyle(getDefaultStyle());
-                    hideNeighborhoodInfo();
-                },
-                click: function(e) {
-                    showDetailedInfo(feature.properties);
-                }
-            });
-        }
-
-        // Afficher les informations du quartier dans une infobulle
-        function showNeighborhoodInfo(properties) {
-            hideNeighborhoodInfo(); // Supprimer l'ancienne infobulle si elle existe
-            
-            const info = document.createElement('div');
-            info.id = 'neighborhood-info';
-            info.innerHTML = `
-                <h3>${properties.name || 'Sans nom'}</h3>
-                <p>Population: ${properties.population || 'N/A'}</p>
-                <p>Surface: ${properties.area || 'N/A'} km²</p>
-            `;
-
-            const updateInfoPosition = function(e) {
-                info.style.left = (e.pageX + 10) + 'px';
-                info.style.top = (e.pageY + 10) + 'px';
-            };
-
-            document.addEventListener('mousemove', updateInfoPosition);
-            document.body.appendChild(info);
-        }
-
-        // Cacher l'infobulle
-        function hideNeighborhoodInfo() {
-            const info = document.getElementById('neighborhood-info');
-            if (info) {
-                info.remove();
-            }
-        }
-
-        // Afficher les informations détaillées
-        function showDetailedInfo(properties) {
-            const detailsHtml = `
-                <h3>${properties.name}</h3>
-                <ul>
-                    <li>Population: ${properties.population}</li>
-                    <li>Surface: ${properties.area} km²</li>
-                    <li>Densité: ${properties.density} hab/km²</li>
-                    <li>Espaces verts: ${properties.greenSpaces}</li>
-                    <li>Écoles: ${properties.schools}</li>
-                </ul>
-            `;
-            document.getElementById('neighborhood-details').innerHTML = detailsHtml;
-        }
-
-        // Chargement du GeoJSON
-        fetch('map.geojson')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!data || !data.features || !data.features.length) {
-                    throw new Error('GeoJSON invalide ou vide');
-                }
-
-                console.log('GeoJSON chargé:', data); // Pour le débogage
-
-                const geoJsonLayer = L.geoJSON(data, {
-                    style: getDefaultStyle,
-                    onEachFeature: onEachFeature
-                }).addTo(map);
-                
-                // Ajuster la vue de la carte pour montrer le GeoJSON
-                map.fitBounds(geoJsonLayer.getBounds());
-            })
-            .catch(error => {
-                console.error('Erreur de chargement du GeoJSON:', error);
-                document.getElementById('map').innerHTML = `
-                    <div style="padding: 20px; background: #fee; color: #833; border-radius: 8px;">
-                        Erreur de chargement de la carte: ${error.message}
-                    </div>
-                `;
-            });
-
-    } catch (error) {
-        console.error('Erreur d\'initialisation de la carte:', error);
-        document.getElementById('map').innerHTML = 'Erreur d\'initialisation de la carte';
+    // Style par défaut pour les quartiers
+    function getDefaultStyle(feature) {
+        return {
+            fillColor: '#ff7f00', // Couleur fixe pour le moment
+            weight: 2,
+            opacity: 1,
+            color: 'white',
+            dashArray: '3',
+            fillOpacity: 0.7
+        };
     }
+
+    // Style au survol
+    function getHighlightStyle(feature) {
+        return {
+            weight: 3,
+            color: '#666',
+            dashArray: '',
+            fillOpacity: 0.8,
+            transform: 'scale(1.01)',
+            transition: 'all 0.3s'
+        };
+    }
+
+    // Fonction pour obtenir une couleur en fonction du nom du quartier
+    function getColorForNeighborhood(name) {
+        const colors = {
+            'Quartier1': '#ff7f00',
+            'Quartier2': '#377eb8',
+            'Quartier3': '#4daf4a',
+            'Quartier4': '#984ea3',
+            // Ajoutez d'autres quartiers et couleurs selon vos besoins
+        };
+        return colors[name] || '#ff7f00'; // Couleur par défaut si le quartier n'est pas listé
+    }
+
+    // Gestion des événements pour chaque feature
+    function onEachFeature(feature, layer) {
+        // Ajout de propriétés par défaut si elles n'existent pas
+        const properties = {
+            name: 'Quartier Test',
+            population: '5000',
+            area: '2.5',
+            density: '2000',
+            greenSpaces: '10 hectares',
+            schools: '2',
+            ...feature.properties
+        };
+
+        layer.on({
+            mouseover: function(e) {
+                const layer = e.target;
+                layer.setStyle(getHighlightStyle());
+                layer.bringToFront();
+                showNeighborhoodInfo(properties);
+            },
+            mouseout: function(e) {
+                const layer = e.target;
+                layer.setStyle(getDefaultStyle());
+                hideNeighborhoodInfo();
+            },
+            click: function(e) {
+                showDetailedInfo(properties);
+            }
+        });
+    }
+
+    // Afficher les informations du quartier dans une infobulle
+    function showNeighborhoodInfo(properties) {
+        const info = document.createElement('div');
+        info.id = 'neighborhood-info';
+        info.innerHTML = `
+            <h3>${properties.name}</h3>
+            <p>Surface: ${properties.area} km²</p>
+        `;
+        
+        // Positionner l'infobulle près du curseur
+        document.addEventListener('mousemove', function(e) {
+            info.style.left = (e.pageX + 10) + 'px';
+            info.style.top = (e.pageY + 10) + 'px';
+        });
+        
+        document.body.appendChild(info);
+    }
+
+    // Cacher l'infobulle
+    function hideNeighborhoodInfo() {
+        const info = document.getElementById('neighborhood-info');
+        if (info) {
+            info.remove();
+        }
+    }
+
+    // Afficher les informations détaillées dans un panneau
+    function showDetailedInfo(properties) {
+        // Exemple d'affichage des données détaillées
+        const detailsHtml = `
+            <h3>${properties.name}</h3>
+            <ul>
+                <li>Population: ${properties.population}</li>
+                <li>Surface: ${properties.area} km²</li>
+                <li>Densité: ${properties.density} hab/km²</li>
+                <li>Espaces verts: ${properties.greenSpaces}</li>
+                <li>Écoles: ${properties.schools}</li>
+            </ul>
+        `;
+        document.getElementById('neighborhood-details').innerHTML = detailsHtml;
+    }
+
+    // Chargement du GeoJSON
+    fetch('map.geojson')
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, {
+                style: getDefaultStyle,
+                onEachFeature: onEachFeature
+            }).addTo(map);
+            
+            // Ajuster la vue de la carte pour montrer tout le GeoJSON
+            const bounds = L.geoJSON(data).getBounds();
+            map.fitBounds(bounds);
+        })
+        .catch(error => console.error('Erreur de chargement du GeoJSON:', error));
 }
 
 // Fonction pour charger les données démographiques
