@@ -49,6 +49,11 @@ nav a:hover {
     background-color: var(--secondary-color);
 }
 
+/* Style pour le lien actif dans la navigation */
+nav a.active {
+    background-color: var(--secondary-color);
+}
+
 /* Sections principales */
 main {
     max-width: 1200px;

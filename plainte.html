@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dépôt de Plainte - Portail Citoyen</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="img/logo.png" type="image/svg">
+    <link href="img/logo.png" rel="icon" sizes="16x16" type="img/logo.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/logo.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="img/logo.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="img/logo.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="img/logo.png">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <img src="img/logo.png" alt="Logo de la ville" class="logo" style="height: 55px; vertical-align: left;">
+            <div class="header-text">
+                <h1>Portail Citoyen</h1>
+                <nav>
+                    <ul>
+                        <li><a href="index.html#accueil">Accueil</a></li>
+                        <li><a href="index.html#carte">Carte Interactive</a></li>
+                        <li><a href="index.html#donnees">Données</a></li>
+                        <li><a href="index.html#services">Services</a></li>
+                        <li><a href="plainte.html" class="active">Dépôt de Plainte</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="plainte">
+            <h2>Dépôt de Plainte</h2>
+            <div class="complaint-form">
+                <form id="complaintForm">
+                    <div class="form-group">
+                        <label for="name">Nom complet *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Téléphone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Adresse concernée *</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Catégorie de la plainte *</label>
+                        <select id="category" name="category" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            <option value="voirie">Voirie</option>
+                            <option value="proprete">Propreté</option>
+                            <option value="nuisances">Nuisances sonores</option>
+                            <option value="eclairage">Éclairage public</option>
+                            <option value="autres">Autres</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description détaillée *</label>
+                        <textarea id="description" name="description" rows="5" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="photo">Photo (optionnel)</label>
+                        <input type="file" id="photo" name="photo" accept="image/*">
+                    </div>
+
+                    <div class="form-submit">
+                        <button type="submit" class="submit-btn">Envoyer la plainte</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Portail Citoyen. Tous droits réservés.</p>
+    </footer>
+
+    <script src="complaint.js"></script>
+</body>
+</html> 
