@@ -89,11 +89,8 @@ function initMap() {
         
         // Positionner l'infobulle près du curseur
         document.addEventListener('mousemove', function(e) {
-            const scrollX = window.scrollX || window.pageXOffset;
-            const scrollY = window.scrollY || window.pageYOffset;
-            
-            info.style.left = (e.clientX + scrollX + 10) + 'px';
-            info.style.top = (e.clientY + scrollY + 10) + 'px';
+            info.style.left = (e.clientX + window.scrollX + 10) + 'px';
+            info.style.top = (e.clientY + window.scrollY + 10) + 'px';
         });
         
         document.body.appendChild(info);
