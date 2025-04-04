@@ -1,15 +1,30 @@
 // Initialisation de la carte
 function initMap() {
-    // Coordonnées du centre de Corbeil-Essonnes
-    const cityCenter = [48.614, 2.4837];
+    // Attendre que le conteneur de la carte soit chargé
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer) return;
 
-    // Création de la carte
-    const map = L.map('map').setView(cityCenter, 13);
+    // S'assurer que le conteneur a une hauteur
+    mapContainer.style.height = window.innerWidth <= 768 ? '400px' : '700px';
 
-    // Ajout de la couche OpenStreetMap
+    // Initialiser la carte
+    const map = L.map('map').setView([48.614389, 2.471111], 13);
+
+    // Ajouter le fond de carte
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
+
+    // Réinitialiser la vue de la carte lors du redimensionnement
+    window.addEventListener('resize', () => {
+        mapContainer.style.height = window.innerWidth <= 768 ? '400px' : '700px';
+        map.invalidateSize();
+    });
+
+    // Forcer une mise à jour de la taille de la carte
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 0);
 
     // Palette de couleurs pour les différentes zones
     const zoneColors = {
