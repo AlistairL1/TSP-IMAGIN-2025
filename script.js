@@ -265,67 +265,43 @@ function initMap() {
             });
 
             espacesVertsLayer = L.geoJSON(data, {
-                style: {
-                    color: '#2ecc71',
-                    weight: 2,
-                    opacity: 1,
-                    fillColor: '#2ecc71',
-                    fillOpacity: 0.5
+                style: function(feature) {
+                    // Définir différentes couleurs selon le type d'espace vert
+                    let fillColor = '#2ecc71'; // Couleur par défaut
+                    
+                    switch(feature.properties.cat_entite) {
+                        case 'GAZON':
+                            fillColor = '#98FB98'; // Vert pastel
+                            break;
+                        case 'MASSIF_VIVACES':
+                            fillColor = '#32CD32'; // Vert lime
+                            break;
+                        case 'CHEMINEMENT':
+                            fillColor = '#DEB887'; // Beige pour les chemins
+                            break;
+                        default:
+                            fillColor = '#2ecc71';
+                    }
+                    
+                    return {
+                        color: '#006400', // Bordure vert foncé
+                        weight: 2,
+                        opacity: 1,
+                        fillColor: fillColor,
+                        fillOpacity: 0.7
+                    };
                 },
                 onEachFeature: (feature, layer) => {
                     const properties = feature.properties;
-                    
-                    // Popup au clic
                     layer.bindPopup(`
                         <strong>Type:</strong> ${properties.cat_entite}<br>
                         <strong>Surface:</strong> ${properties.surf_entit.toFixed(2)} m²<br>
                         <strong>Entretien:</strong> ${properties.ent_entite}
                     `);
-
-                    // Événements pour afficher les détails dans le panneau latéral
-                    layer.on({
-                        mouseover: (e) => {
-                            const greenSpaceDetails = document.getElementById('green-space-details');
-                            greenSpaceDetails.innerHTML = `
-                                <div class="details-box">
-                                    <h4>Espace vert</h4>
-                                    <p><strong>Type :</strong> ${properties.cat_entite}</p>
-                                    <p><strong>Surface :</strong> ${properties.surf_entit.toFixed(2)} m²</p>
-                                    <p><strong>Entretien :</strong> ${properties.ent_entite}</p>
-                                    <p><strong>Fréquence :</strong> ${properties.freq_entit} fois par an</p>
-                                    <p><strong>Site :</strong> ${properties.nom_site}</p>
-                                </div>
-                            `;
-                            layer.setStyle({
-                                fillOpacity: 0.8,
-                                weight: 3
-                            });
-                        },
-                        mouseout: (e) => {
-                            const greenSpaceDetails = document.getElementById('green-space-details');
-                            greenSpaceDetails.innerHTML = `
-                                <div class="details-box">
-                                    <p class="placeholder">Survolez un espace vert pour voir ses détails</p>
-                                </div>
-                            `;
-                            layer.setStyle({
-                                fillOpacity: 0.5,
-                                weight: 2
-                            });
-                        }
-                    });
                 }
             }).addTo(map);
         })
         .catch(error => console.error('Erreur de chargement des espaces verts:', error));
-
-    // Ajouter le message par défaut pour les espaces verts
-    const greenSpaceDetails = document.getElementById('green-space-details');
-    greenSpaceDetails.innerHTML = `
-        <div class="details-box">
-            <p class="placeholder">Survolez un espace vert pour voir ses détails</p>
-        </div>
-    `;
 
     // Fonction pour convertir un point de Lambert 93 vers WGS84
     function convertPoint(coord) {
