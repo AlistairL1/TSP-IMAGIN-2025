@@ -424,7 +424,8 @@ footer {
     margin-bottom: 1rem;
     display: flex;
     gap: 10px;
-    max-width: 600px;
+    max-width: 100%;
+    position: relative;
 }
 
 #address-search {
@@ -445,7 +446,7 @@ footer {
     position: absolute;
     top: 100%;
     left: 0;
-    right: 0;
+    width: calc(100% - 120px);
     background: white;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -463,4 +464,33 @@ footer {
 
 .search-result-item:hover {
     background-color: #f5f5f5;
+}
+
+/* Style pour la boîte de détails */
+.details-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+.details-box h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--secondary-color);
+}
+
+.details-box p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.details-box .placeholder {
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+}
+
+#green-space-details {
+    margin-top: 1rem;
 }
