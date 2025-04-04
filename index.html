@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portail Citoyen - Votre Ville</title>
+    <title>Portail Citoyen - Corbeil-Essonnes</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="img/logo.png" type="image/svg">
@@ -13,13 +13,14 @@
     <link rel="apple-touch-icon" sizes="120x120" href="img/logo.png">
     <link rel="apple-touch-icon" sizes="76x76" href="img/logo.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
         <div class="header-content">
-            <a href="https://alistairl1.github.io/TSP-IMAGIN-2025/">
-                <img src="img/logo.png" alt="Logo de la ville" class="header-content" style="height: 55px; vertical-align: left;">
-            </a>
+            <div class="logo">
+                <img src="img/logo-corbeil.png" alt="Logo Corbeil-Essonnes">
+            </div>
             <div class="header-text">
                 <h1>Bienvenue sur le Portail Citoyen</h1>
                 <nav>
@@ -35,29 +36,34 @@
     </header>
 
     <main>
-        <section id="accueil">
-            <h2>Découvrez votre ville</h2>
-            <p>Explorez les données et services disponibles pour les citoyens.</p>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Bienvenue sur le portail citoyen de Corbeil-Essonnes</h1>
+                <p>Découvrez votre ville et ses services de manière interactive</p>
+            </div>
         </section>
 
         <section id="carte">
-            <h2>Carte Interactive</h2>
-            <div class="map-container">
-                <div class="search-container">
-                    <input type="text" id="address-search" placeholder="Rechercher une adresse...">
-                    <button id="search-btn" class="submit-btn">Rechercher</button>
-                </div>
-                <div class="map-wrapper">
-                    <div id="map"></div>
-                    <div id="map-controls">
-                        <h3>Couches</h3>
-                        <div class="layer-control">
-                            <input type="checkbox" id="espaces-verts" checked>
-                            <label for="espaces-verts">Espaces verts</label>
+            <div class="container">
+                <h2>Carte Interactive de Corbeil-Essonnes</h2>
+                <p class="section-description">Explorez votre ville, ses quartiers et ses espaces verts</p>
+                <div class="map-container">
+                    <div class="search-container">
+                        <input type="text" id="address-search" placeholder="Rechercher une adresse...">
+                        <button id="search-btn" class="submit-btn">Rechercher</button>
+                    </div>
+                    <div class="map-wrapper">
+                        <div id="map"></div>
+                        <div id="map-controls">
+                            <h3>Couches</h3>
+                            <div class="layer-control">
+                                <input type="checkbox" id="espaces-verts" checked>
+                                <label for="espaces-verts">Espaces verts</label>
+                            </div>
                         </div>
                     </div>
+                    <div id="neighborhood-details"></div>
                 </div>
-                <div id="neighborhood-details"></div>
             </div>
         </section>
 
@@ -81,7 +87,9 @@
     </main>
 
     <footer>
-        <p>&copy; 2025 Portail Citoyen. Tous droits réservés.</p>
+        <div class="footer-content">
+            <p>&copy; 2025 Portail Citoyen. Tous droits réservés.</p>
+        </div>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
