@@ -12,6 +12,7 @@
     <link rel="apple-touch-icon" sizes="152x152" href="img/logo.png">
     <link rel="apple-touch-icon" sizes="120x120" href="img/logo.png">
     <link rel="apple-touch-icon" sizes="76x76" href="img/logo.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
 </head>
 <body>
     <header>
@@ -41,8 +42,23 @@
 
         <section id="carte">
             <h2>Carte Interactive</h2>
-            <div id="map"></div>
-            <div id="neighborhood-details"></div>
+            <div class="map-container">
+                <div class="search-container">
+                    <input type="text" id="address-search" placeholder="Rechercher une adresse...">
+                    <button id="search-btn" class="submit-btn">Rechercher</button>
+                </div>
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                    <div id="map-controls">
+                        <h3>Couches</h3>
+                        <div class="layer-control">
+                            <input type="checkbox" id="espaces-verts" checked>
+                            <label for="espaces-verts">Espaces verts</label>
+                        </div>
+                    </div>
+                </div>
+                <div id="neighborhood-details"></div>
+            </div>
         </section>
 
         <section id="donnees">

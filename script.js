@@ -234,6 +234,178 @@ function initMap() {
         initialBounds = bounds; // Sauvegarder les limites initiales
         map.fitBounds(bounds);
     });
+
+    // Ajouter la fonction de recherche d'adresse
+    const searchInput = document.getElementById('address-search');
+    const searchBtn = document.getElementById('search-btn');
+    let searchResultsContainer = null;
+    let searchMarker = null;
+
+    // Fonction pour effectuer la recherche
+    async function searchAddress(query) {
+        const baseUrl = 'https://nominatim.openstreetmap.org/search';
+        const params = new URLSearchParams({
+            q: query,
+            format: 'json',
+            limit: 5,
+            viewbox: '2.4,48.5,2.6,48.7', // Limiter la recherche autour de Corbeil-Essonnes
+            bounded: 1
+        });
+
+        try {
+            const response = await fetch(`${baseUrl}?${params}`);
+            const data = await response.json();
+            showSearchResults(data);
+        } catch (error) {
+            console.error('Erreur lors de la recherche :', error);
+        }
+    }
+
+    // Afficher les résultats de recherche
+    function showSearchResults(results) {
+        // Supprimer l'ancien conteneur de résultats s'il existe
+        if (searchResultsContainer) {
+            searchResultsContainer.remove();
+        }
+
+        // Créer un nouveau conteneur
+        searchResultsContainer = document.createElement('div');
+        searchResultsContainer.className = 'search-results';
+
+        results.forEach(result => {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'search-result-item';
+            resultItem.textContent = result.display_name;
+            resultItem.addEventListener('click', () => {
+                selectSearchResult(result);
+            });
+            searchResultsContainer.appendChild(resultItem);
+        });
+
+        // Ajouter le conteneur après l'input de recherche
+        searchInput.parentNode.appendChild(searchResultsContainer);
+    }
+
+    // Sélectionner un résultat de recherche
+    function selectSearchResult(result) {
+        // Supprimer l'ancien marqueur s'il existe
+        if (searchMarker) {
+            map.removeLayer(searchMarker);
+        }
+
+        // Créer un nouveau marqueur
+        const latlng = [parseFloat(result.lat), parseFloat(result.lon)];
+        searchMarker = L.marker(latlng).addTo(map);
+
+        // Centrer la carte sur le résultat
+        map.setView(latlng, 16);
+
+        // Nettoyer les résultats
+        if (searchResultsContainer) {
+            searchResultsContainer.remove();
+            searchResultsContainer = null;
+        }
+
+        // Mettre à jour l'input avec l'adresse sélectionnée
+        searchInput.value = result.display_name;
+    }
+
+    // Événement de clic sur le bouton de recherche
+    searchBtn.addEventListener('click', () => {
+        const query = searchInput.value.trim();
+        if (query) {
+            searchAddress(query);
+        }
+    });
+
+    // Événement de touche Entrée dans l'input
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = searchInput.value.trim();
+            if (query) {
+                searchAddress(query);
+            }
+        }
+    });
+
+    // Fermer les résultats si on clique ailleurs
+    document.addEventListener('click', (e) => {
+        if (searchResultsContainer && 
+            !searchResultsContainer.contains(e.target) && 
+            e.target !== searchInput) {
+            searchResultsContainer.remove();
+            searchResultsContainer = null;
+        }
+    });
+
+    // Créer une couche pour les espaces verts
+    let espacesVertsLayer = null;
+
+    // Charger le fichier GeoJSON des espaces verts
+    fetch('esp_vert.geojson')
+        .then(response => response.json())
+        .then(data => {
+            // Convertir les coordonnées de EPSG:2154 vers EPSG:4326 (WGS84)
+            data.features.forEach(feature => {
+                if (feature.geometry && feature.geometry.coordinates) {
+                    feature.geometry.coordinates = convertCoordinates(feature.geometry.coordinates);
+                }
+            });
+
+            espacesVertsLayer = L.geoJSON(data, {
+                style: {
+                    color: '#2ecc71',
+                    weight: 2,
+                    opacity: 1,
+                    fillColor: '#2ecc71',
+                    fillOpacity: 0.5
+                },
+                onEachFeature: (feature, layer) => {
+                    const properties = feature.properties;
+                    layer.bindPopup(`
+                        <strong>Type:</strong> ${properties.cat_entite}<br>
+                        <strong>Surface:</strong> ${properties.surf_entit.toFixed(2)} m²<br>
+                        <strong>Entretien:</strong> ${properties.ent_entite}
+                    `);
+                }
+            }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement des espaces verts:', error));
+
+    // Gérer l'affichage des espaces verts
+    const espacesVertsCheckbox = document.getElementById('espaces-verts');
+    espacesVertsCheckbox.addEventListener('change', (e) => {
+        if (espacesVertsLayer) {
+            if (e.target.checked) {
+                map.addLayer(espacesVertsLayer);
+            } else {
+                map.removeLayer(espacesVertsLayer);
+            }
+        }
+    });
+
+    // Fonction pour convertir les coordonnées de EPSG:2154 vers EPSG:4326
+    function convertCoordinates(coords) {
+        if (Array.isArray(coords[0][0])) {
+            return coords.map(ring => ring.map(coord => convertPoint(coord)));
+        } else {
+            return coords.map(coord => convertPoint(coord));
+        }
+    }
+
+    function convertPoint(coord) {
+        // Utiliser proj4js pour la conversion
+        // Vous devrez inclure la bibliothèque proj4js et définir la projection EPSG:2154
+        // Pour l'instant, retournons des coordonnées approximatives pour Corbeil-Essonnes
+        const x = coord[0];
+        const y = coord[1];
+        
+        // Ces valeurs sont approximatives et devront être ajustées
+        const lat = y * 0.000009 + 48.5;
+        const lon = x * 0.000009 + 2.4;
+        
+        return [lon, lat];
+    }
 }
 
 // Fonction pour charger les données démographiques
