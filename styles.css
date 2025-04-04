@@ -175,7 +175,7 @@ section h2 {
     user-select: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 500px) {
     /* Header mobile */
     header {
         position: relative;
