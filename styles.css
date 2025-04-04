@@ -43,7 +43,7 @@ header {
 
 /* Hero section */
 .hero {
-    background-image: url('img/corbeil-essonnes-aerial.jpg'); /* Image aérienne de Corbeil-Essonnes */
+    background-image: url('img/corbeil-essonnes.jpg'); /* Image aérienne de Corbeil-Essonnes */
     background-size: cover;
     background-position: center;
     height: 600px;
